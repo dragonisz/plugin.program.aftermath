@@ -17,7 +17,7 @@
 #  http://www.gnu.org/copyleft/gpl.html                                        #
 ################################################################################
 
-import xbmcaddon, xbmc, uservar, sys, os, time
+import xbmcaddon, xbmc, uservar, sys, os, time, io, zipfile
 import wizard as wiz
 
 ADDON_ID       = uservar.ADDON_ID
@@ -45,23 +45,27 @@ else:
 LOGFILES       = ['xbmc.log', 'xbmc.old.log', 'kodi.log', 'kodi.old.log', 'spmc.log', 'spmc.old.log', 'tvmc.log', 'tvmc.old.log', 'Thumbs.db', '.gitignore', '.DS_Store']
 bad_files      = ['onechannelcache.db', 'saltscache.db', 'saltscache.db-shm', 'saltscache.db-wal', 'saltshd.lite.db', 'saltshd.lite.db-shm', 'saltshd.lite.db-wal', 'queue.db', 'commoncache.db', 'access.log', 'trakt.db', 'video_cache.db']
 
+
+
 def all(_in, _out, dp=None, ignore=None, title=None):
 	if dp: return allWithProgress(_in, _out, dp, ignore, title)
 	else: return allNoProgress(_in, _out, ignore)
 
 def allNoProgress(_in, _out, ignore):
 	try:
-		zin = zipfile.ZipFile(_in, 'r')
+		content_file = io.FileIO(_in,'r')
+		zin = zipfile.ZipFile(content_file,'r')
 		zin.extractall(_out)
 	except Exception, e:
-		wiz.log(str(e))
+		print str(e)
 		return False
 	return True
 
 def allWithProgress(_in, _out, dp, ignore, title):
 	count = 0; errors = 0; error = ''; update = 0; size = 0; excludes = []
 	try:
-		zin = zipfile.ZipFile(_in,  'r')
+		content_file = io.FileIO(_in,'r')
+		zin = zipfile.ZipFile(content_file,'r')
 	except Exception, e:
 		errors += 1; error += '%s\n' % e
 		wiz.log('Error Checking Zip: %s' % str(e), xbmc.LOGERROR)
